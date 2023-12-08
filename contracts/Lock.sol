@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Roles.sol";
-
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
@@ -17,14 +16,47 @@ contract DPP is ERC1155, AccessControl, ERC1155Burnable, ERC1155Supply {
     Roles.Role private _recyclers;
     Roles.Role private _minters;
     Roles.Role private _destributors;
-
-
     Roles.Role private _burners;
-             public mapping (address => uint) adressToDPP_ID;
-    public mapping (uint=>mapping(address=>bool)) dppIdtoUsers;
+    
+    public mapping (address => uint) adressToDPP_ID;
+    public mapping (uint=>mapping(address=>bool)) dppIdtoUsers;     
+
+    struct OrderReceipt{
+        string color;
+        string model_type;
+        uint bike_cost;
+        uint deposit_frame;
+        uint deposit_wheels:
+        uint deposit_total;
+    }
+    public mapping (address=>bool)OrderMade;
+    public mapping (address=>OrderReceipt)UserOrder;
     constructor() ERC1155("") {
         _admin.add(msg.sender);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     function setURI(string memory newuri) public onlyRole(URI_SETTER_ROLE) {
         _setURI(newuri);
     }
