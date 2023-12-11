@@ -52,6 +52,8 @@ contract DPPContract is
     ) public payable onlyNewPurchase {
         // Check if price sent is valid, else revert the transaction
         require(msg.value == totalPrice, "The price received is invalid");
+        require(orderMade[msg.sender]"Already made an order")
+        orderMade[msg.sender]=true;
         userOrderIPFS[msg.sender] = _ipfsLink;
         BikePayment[msg.sender] = true;
         PayedDepositFrame[msg.sender] = true;
@@ -68,6 +70,7 @@ contract DPPContract is
         require(BikePayment[_user], "No valid Payment");
         payTo(_user, bikePrice);
         BikePayment[_user] = false;
+        delete orderMade[_user];
         delete userOrderIPFS[_user];
         uri_set_mint(_dpp_ipfs_link, _user);
     }
