@@ -30,11 +30,11 @@ contract DPPContract is
         _grantRole(MINTER_ROLE, minter);
     }
 
-    mapping(address => bool) BikePayment;
-    mapping(address => bool) PayedDepositFrame;
-    mapping(address => bool) PayedDepositWheel;
-    mapping(address => uint) adressToDPP_ID;
-    mapping(uint => mapping(address => bool)) dppIdtoUsers;
+    mapping(address => bool) public BikePayment;
+    mapping(address => bool) public PayedDepositFrame;
+    mapping(address => bool) public PayedDepositWheel;
+    mapping(address => uint) public adressToDPP_ID;
+    mapping(uint => mapping(address => bool)) public dppIdtoUsers;
     mapping(address => bool) public orderMade;
     mapping(address => string) public userOrderIPFS;
     modifier onlyNewPurchase() {
@@ -43,17 +43,13 @@ contract DPPContract is
         _;
     }
 
-    function makePurchaseDel(string memory _ipfsLink) public {
-        orderMade[msg.sender] = false;
-    }
-
     function makePurchase(
         string memory _ipfsLink
     ) public payable onlyNewPurchase {
         // Check if price sent is valid, else revert the transaction
         require(msg.value == totalPrice, "The price received is invalid");
-        require(orderMade[msg.sender]"Already made an order")
-        orderMade[msg.sender]=true;
+        require(!orderMade[msg.sender], "Already made an order");
+        orderMade[msg.sender] = true;
         userOrderIPFS[msg.sender] = _ipfsLink;
         BikePayment[msg.sender] = true;
         PayedDepositFrame[msg.sender] = true;
@@ -78,9 +74,10 @@ contract DPPContract is
     ////////////////////// Cancel Purchase as Distributor /////////
     function cancelPurchase_User() public {
         // require(_maintainer.has(msg.sender), "DOES_NOT_HAVE_MINTER_ROLE");
-        require(BikePayment[msg.sender], "No valid Payment"); // check if the
+        require(BikePayment[msg.sender], "No purchase has been made to cancel"); // check if the
         payTo(msg.sender, totalPrice); // pay back the ammount to client
         delete BikePayment[msg.sender];
+        delete orderMade[msg.sender];
         delete PayedDepositFrame[msg.sender];
         delete PayedDepositWheel[msg.sender];
         delete userOrderIPFS[msg.sender]; // delete IPFS instance
@@ -90,8 +87,9 @@ contract DPPContract is
 
     function cancelPurchase_Distributor(address _user) public {
         // require(_maintainer.has(msg.sender), "DOES_NOT_HAVE_MINTER_ROLE");
-        require(BikePayment[_user], "No valid Payment"); // check if the
+        require(BikePayment[_user], "No purchase has been made to cancel"); // check if the
         payTo(_user, totalPrice); // pay back the ammount to client
+        delete orderMade[msg.sender];
         delete BikePayment[_user];
         delete PayedDepositFrame[_user];
         delete PayedDepositWheel[_user];
